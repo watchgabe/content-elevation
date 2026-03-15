@@ -1,83 +1,322 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSCreative™ — Content Elevation Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-#wb{max-width:760px;margin:0 auto;padding:1rem 1rem 4rem}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 0 1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
-.logo{font-size:12px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.08em;text-transform:uppercase}
+/* ─── RESET ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ─── TOKENS ─── */
+:root{
+  --bg:#f7f6f4;
+  --surface:#edecea;
+  --card:#e2e0dc;
+  --border:#ccc9c2;
+  --border2:#b8b4ac;
+  --text:#0a0a0a;
+  --dim:#404040;
+  --dimmer:#888888;
+  --orange:#F0601B;
+  --orange-hover:#d95215;
+  --orange-tint:#FEF0E8;
+  --orange-border:#F4B89A;
+  --orange-dark:#B84410;
+  --green-bg:#E6F5EF;
+  --green-text:#085041;
+  --green-border:#5DCAA5;
+  --radius-lg:10px;
+  --radius-md:6px;
+  --font:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --font-num:'Barlow Condensed',sans-serif;
+}
+
+/* ─── BASE ─── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* subtle grain texture */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.025'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+
+/* ─── LAYOUT ─── */
+#wb{max-width:720px;margin:0 auto;padding:1.25rem 1.25rem 5rem}
+
+/* ─── TOP BAR ─── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 0 1.25rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:1.5rem;
+}
+.logo{
+  font-size:11px;font-weight:600;color:var(--dimmer);
+  letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--font);
+}
 .pw{display:flex;align-items:center;gap:10px}
-.pb{width:120px;height:3px;background:var(--color-border-tertiary);border-radius:2px}
-.pf{height:100%;background:#534AB7;border-radius:2px;transition:width .4s}
-.pt{font-size:12px;color:var(--color-text-secondary)}
+.pb{width:120px;height:3px;background:var(--border);border-radius:2px}
+.pf{height:100%;background:var(--orange);border-radius:2px;transition:width .4s}
+.pt{font-size:11px;color:var(--dimmer);font-weight:500}
+
+/* ─── TABS ─── */
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2rem}
-.tab{font-size:11px;padding:4px 10px;border-radius:20px;border:.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
-.tab.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
-.tab.ok{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.tab{
+  font-size:11px;padding:4px 11px;border-radius:20px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--dimmer);cursor:pointer;
+  font-family:var(--font);font-weight:500;
+  transition:all .15s;
+}
+.tab:hover{border-color:var(--border2);color:var(--dim)}
+.tab.on{background:var(--orange-tint);color:var(--orange-dark);border-color:var(--orange-border)}
+.tab.ok{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border)}
+
+/* ─── SECTIONS ─── */
 .sc{display:none}
 .sc.show{display:block}
-.pl{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#534AB7;margin-bottom:8px}
-h1{font-size:24px;font-weight:500;color:var(--color-text-primary);line-height:1.25;margin-bottom:12px}
-h2{font-size:17px;font-weight:500;color:var(--color-text-primary);margin:1.5rem 0 8px}
-h3{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:1rem 0 5px}
-.intro{font-size:14px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:1.25rem}
-.teach{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1.1rem 1.4rem;margin-bottom:1.1rem}
-.teach p{font-size:13px;color:var(--color-text-primary);line-height:1.8;margin-bottom:9px}
+
+/* ─── PART LABEL ─── */
+.pl{
+  font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--orange);
+  margin-bottom:8px;font-family:var(--font);
+}
+
+/* ─── HEADINGS ─── */
+h1{
+  font-size:26px;font-weight:700;color:var(--text);
+  line-height:1.2;margin-bottom:12px;
+  letter-spacing:-.4px;
+}
+h2{
+  font-size:16px;font-weight:600;color:var(--text);
+  margin:1.75rem 0 8px;letter-spacing:-.1px;
+}
+h3{font-size:14px;font-weight:600;color:var(--text);margin:1rem 0 5px}
+
+/* ─── INTRO ─── */
+.intro{
+  font-size:14px;color:var(--dim);line-height:1.8;
+  margin-bottom:1.5rem;
+}
+
+/* ─── STATS ROW ─── */
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.sc2{
+  background:var(--surface);border-radius:var(--radius-md);
+  padding:1rem;text-align:center;
+  border:1px solid var(--border);
+}
+.sn{
+  font-family:var(--font-num);
+  font-size:40px;font-weight:900;line-height:1;
+  color:var(--text);letter-spacing:-.5px;
+}
+.sl{font-size:11px;color:var(--dimmer);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+
+/* ─── TEACH BLOCK ─── */
+.teach{
+  background:var(--surface);border-radius:var(--radius-lg);
+  padding:1.1rem 1.4rem;margin-bottom:1.1rem;
+  border:1px solid var(--border);
+}
+.teach p{font-size:13.5px;color:var(--text);line-height:1.85;margin-bottom:9px}
 .teach p:last-child{margin-bottom:0}
-.teach ul,.teach ol{padding-left:1.1rem;margin-top:5px}
-.teach li{font-size:13px;color:var(--color-text-primary);line-height:1.8;margin-bottom:5px}
-.ins{border-left:3px solid #534AB7;padding:10px 14px;background:#EEEDFE;margin-bottom:1.1rem}
-.ins p{font-size:13px;color:#3C3489;line-height:1.65;margin:0}
-.fml{border:.5px solid #AFA9EC;border-radius:var(--border-radius-lg);padding:.9rem 1.1rem;background:#EEEDFE;margin-bottom:1.1rem}
-.fml p{font-size:12px;font-weight:500;color:#3C3489;line-height:1.7;margin:0}
-.ec{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.1rem;margin-bottom:1rem}
-.elbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#534AB7;margin-bottom:10px}
-.q{font-size:13px;color:var(--color-text-primary);margin-bottom:5px;line-height:1.5;margin-top:9px}
-.qh{font-size:11px;color:var(--color-text-secondary);margin-bottom:7px;line-height:1.5}
-textarea,input[type=text]{width:100%;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 11px;font-size:13px;font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-secondary);margin-bottom:9px;resize:vertical;line-height:1.5}
-textarea:focus,input[type=text]:focus{outline:none;border-color:#7F77DD;background:var(--color-background-primary)}
+.teach ul,.teach ol{padding-left:1.2rem;margin-top:5px}
+.teach li{font-size:13.5px;color:var(--text);line-height:1.85;margin-bottom:6px}
+.teach strong{font-weight:600;color:var(--text)}
+
+/* ─── CALLOUT (INS) ─── */
+.ins{
+  border-left:3px solid var(--orange);
+  padding:11px 15px;
+  background:var(--orange-tint);
+  margin-bottom:1.1rem;
+  border-radius:0 var(--radius-md) var(--radius-md) 0;
+}
+.ins p{font-size:13.5px;color:var(--orange-dark);line-height:1.7;margin:0;font-weight:500}
+.ins strong{font-weight:700}
+
+/* ─── FORMULA ─── */
+.fml{
+  border:1px solid var(--orange-border);
+  border-radius:var(--radius-lg);
+  padding:.9rem 1.2rem;
+  background:var(--orange-tint);
+  margin-bottom:1.1rem;
+}
+.fml p{font-size:13px;font-weight:600;color:var(--orange-dark);line-height:1.75;margin:0}
+
+/* ─── EXERCISE CARD ─── */
+.ec{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:1.2rem;margin-bottom:1.1rem;
+}
+.elbl{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--orange);margin-bottom:12px;
+}
+
+/* ─── QUESTION ─── */
+.q{font-size:13.5px;color:var(--text);margin-bottom:5px;line-height:1.5;margin-top:10px;font-weight:500}
+.qh{font-size:11.5px;color:var(--dimmer);margin-bottom:7px;line-height:1.5}
+
+/* ─── INPUTS ─── */
+textarea,input[type=text]{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:9px 12px;
+  font-size:13px;font-family:var(--font);
+  color:var(--text);
+  background:var(--surface);
+  margin-bottom:9px;resize:vertical;line-height:1.5;
+  transition:border-color .15s, background .15s;
+}
+textarea:focus,input[type=text]:focus{
+  outline:none;
+  border-color:var(--orange);
+  background:var(--bg);
+  box-shadow:0 0 0 3px rgba(240,96,27,.08);
+}
+textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
+
+/* ─── OPTION GRIDS ─── */
 .og{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px}
 .og3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:9px}
-.opt{padding:8px 10px;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;text-align:left;line-height:1.4;font-family:var(--font-sans);display:block;width:100%}
-.opt.sel{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
-.opt:hover{border-color:var(--color-border-secondary)}
-.nr{display:flex;justify-content:space-between;align-items:center;margin-top:1.75rem;padding-top:1.25rem;border-top:.5px solid var(--color-border-tertiary)}
-.si{font-size:12px;color:var(--color-text-secondary)}
-.btn{padding:8px 16px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;transition:all .15s;border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);font-family:var(--font-sans)}
-.btn:hover{background:var(--color-background-secondary)}
-.btn.p{background:#534AB7;color:#EEEDFE;border-color:#534AB7}
-.btn.p:hover{background:#3C3489}
-.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
-.sc2{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.9rem;text-align:center}
-.sn{font-size:24px;font-weight:500;color:var(--color-text-primary)}
-.sl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.1rem}
-.sc3{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;background:var(--color-background-secondary)}
-.sn2{font-size:12px;font-weight:500;color:#3C3489;margin-bottom:3px}
-.sd{font-size:11px;color:var(--color-text-secondary);line-height:1.6}
-.kg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.1rem}
-.ki{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;background:var(--color-background-secondary)}
-.kc{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:#534AB7;margin-bottom:3px}
-.kn{font-size:12px;color:var(--color-text-primary);font-weight:500;margin-bottom:3px}
-.kd{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
-.hs{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.9rem;margin-bottom:9px;background:var(--color-background-secondary)}
-.hn{font-size:10px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
 .tc2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
 .tc3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:9px}
-.slc{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.9rem;margin-bottom:7px;background:var(--color-background-secondary)}
-.sll{font-size:11px;font-weight:500;color:#534AB7;margin-bottom:5px}
-.wc{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.9rem;margin-bottom:7px}
-.wl{font-size:10px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+
+.opt{
+  padding:9px 11px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  background:var(--surface);
+  color:var(--dim);
+  font-size:12px;cursor:pointer;text-align:left;
+  line-height:1.4;font-family:var(--font);
+  display:block;width:100%;
+  transition:all .15s;
+}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt.sel{background:var(--orange-tint);color:var(--orange-dark);border-color:var(--orange-border);font-weight:500}
+
+/* ─── NAV ROW ─── */
+.nr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:2rem;padding-top:1.25rem;
+  border-top:1px solid var(--border);
+}
+.si{font-size:12px;color:var(--dimmer);font-weight:500}
+
+/* ─── BUTTONS ─── */
+.btn{
+  padding:9px 18px;border-radius:var(--radius-md);
+  font-size:12.5px;cursor:pointer;transition:all .15s;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text);font-family:var(--font);font-weight:500;
+}
+.btn:hover{background:var(--surface);border-color:var(--border2)}
+.btn.p{
+  background:var(--orange);color:#fff;
+  border-color:var(--orange);font-weight:600;
+}
+.btn.p:hover{background:var(--orange-hover);border-color:var(--orange-hover)}
+
+/* ─── SHOT GRID ─── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.1rem}
+.sc3{
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:11px;background:var(--surface);
+}
+.sn2{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sd{font-size:11.5px;color:var(--dim);line-height:1.65}
+
+/* ─── KNOWLEDGE GRID ─── */
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.1rem}
+.ki{
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:11px;background:var(--surface);
+}
+.kc{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange);margin-bottom:3px}
+.kn{font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:4px}
+.kd{font-size:11.5px;color:var(--dim);line-height:1.6}
+
+/* ─── HOOK SETUP ─── */
+.hs{
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:.9rem;margin-bottom:9px;background:var(--surface);
+}
+.hn{font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+
+/* ─── SETUP CARD ─── */
+.slc{
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:.9rem;margin-bottom:7px;background:var(--surface);
+}
+.sll{font-size:11px;font-weight:600;color:var(--orange);margin-bottom:6px}
+
+/* ─── WEEK CARD ─── */
+.wc{border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem;margin-bottom:7px;background:var(--surface)}
+.wl{font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.wc p{font-size:13px;color:var(--text);line-height:1.8}
+
+/* ─── BULLET ROW ─── */
 .brs{display:flex;flex-direction:column;gap:5px;margin-bottom:1.1rem}
-.bri{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary)}
-.brn{font-size:11px;font-weight:500;color:#534AB7;min-width:18px}
-.brt{font-size:12px;color:var(--color-text-primary);line-height:1.6}
-.sum{margin-bottom:.9rem}
-.slb{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-secondary);margin-bottom:3px}
-.svl{font-size:13px;color:var(--color-text-primary);background:var(--color-background-secondary);padding:8px 11px;border-radius:var(--border-radius-md);line-height:1.5;min-height:34px}
-.ups{background:#EEEDFE;border-radius:var(--border-radius-lg);padding:1.25rem;margin-top:1.75rem}
-.ups h2{margin-top:0;color:#26215C}
-.ups p{font-size:13px;color:#534AB7;line-height:1.7;margin-bottom:.9rem}
-.div{height:.5px;background:var(--color-border-tertiary);margin:1.25rem 0}
+.bri{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 12px;
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--surface);
+}
+.brn{font-size:12px;font-weight:700;color:var(--orange);min-width:18px;font-family:var(--font)}
+.brt{font-size:13px;color:var(--text);line-height:1.65}
+.brt strong{font-weight:600}
+
+/* ─── SUMMARY / PLAYBOOK ─── */
+.sum{margin-bottom:.85rem}
+.slb{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--dimmer);margin-bottom:3px;font-weight:600}
+.svl{
+  font-size:13px;color:var(--text);background:var(--surface);
+  padding:9px 12px;border-radius:var(--radius-md);
+  line-height:1.5;min-height:36px;border:1px solid var(--border);
+}
+
+/* ─── UPSELL BLOCK ─── */
+.ups{
+  background:var(--orange-tint);border-radius:var(--radius-lg);
+  padding:1.4rem;margin-top:2rem;
+  border:1px solid var(--orange-border);
+}
+.ups h2{margin-top:0;color:var(--orange-dark);margin-bottom:.6rem;font-size:17px}
+.ups p{font-size:13.5px;color:var(--orange-dark);line-height:1.75;margin-bottom:1rem;opacity:.9}
+
+/* ─── DIVIDER ─── */
+.div{height:1px;background:var(--border);margin:1.5rem 0}
+
+/* ─── PRINT ─── */
+@media print{body::before{display:none}.tabs,.nr,.ups{display:none!important}.sc{display:block!important}#wb{max-width:100%;padding:0}}
 </style>
+</head>
+<body>
+
 <div id="wb">
 <div class="topbar">
   <div class="logo">FSCreative™ — Content Elevation Workbook</div>
@@ -415,11 +654,11 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:#7F77DD;backgrou
   <div id="pbContent"></div>
   <div class="div"></div>
   <h2>Your 30-day content elevation plan</h2>
-  <div class="wc"><div class="wl">Week 1 — Foundation</div><p style="font-size:13px;color:var(--color-text-primary);line-height:1.8">Complete all foundation exercises. Define your content goal, ideal viewer, and platform strategy. Write your content formula for every piece you create this week. Commit to your cadence and don't adjust it until week 4.</p></div>
-  <div class="wc"><div class="wl">Week 2 — Visual Identity</div><p style="font-size:13px;color:var(--color-text-primary);line-height:1.8">Complete all visual identity exercises. Define your visual world narrative. Build your shot system blueprint. Set up your filming space. Establish your color palette and typography. Film a test video with your new visual standards and review it critically.</p></div>
-  <div class="wc"><div class="wl">Week 3 — Content Creation</div><p style="font-size:13px;color:var(--color-text-primary);line-height:1.8">Complete all content creation exercises. Write your hook library (10 hooks minimum). Plan your first 30 pieces of content across all formats. Film your first 5 pieces using your new visual standards and shot system.</p></div>
-  <div class="wc"><div class="wl">Week 4 — System & Launch</div><p style="font-size:13px;color:var(--color-text-primary);line-height:1.8">Complete all system exercises. Set up your batching schedule. Map your complete content waterfall. Build your monetization funnel. Launch your elevated content. Review performance at end of week — what worked, what didn't, what to adjust.</p></div>
-  <div class="ins" style="margin-top:1.25rem"><p>Building a premium personal brand is not about being perfect. It's about showing up intentionally. Consistently. With a clear point of view and a genuine desire to help the people you serve. The creators who win are the most consistent. You have everything you need. Now go build it.</p></div>
+  <div class="wc"><div class="wl">Week 1 — Foundation</div><p>Complete all foundation exercises. Define your content goal, ideal viewer, and platform strategy. Write your content formula for every piece you create this week. Commit to your cadence and don't adjust it until week 4.</p></div>
+  <div class="wc"><div class="wl">Week 2 — Visual Identity</div><p>Complete all visual identity exercises. Define your visual world narrative. Build your shot system blueprint. Set up your filming space. Establish your color palette and typography. Film a test video with your new visual standards and review it critically.</p></div>
+  <div class="wc"><div class="wl">Week 3 — Content Creation</div><p>Complete all content creation exercises. Write your hook library (10 hooks minimum). Plan your first 30 pieces of content across all formats. Film your first 5 pieces using your new visual standards and shot system.</p></div>
+  <div class="wc"><div class="wl">Week 4 — System & Launch</div><p>Complete all system exercises. Set up your batching schedule. Map your complete content waterfall. Build your monetization funnel. Launch your elevated content. Review performance at end of week — what worked, what didn't, what to adjust.</p></div>
+  <div class="ins" style="margin-top:1.5rem"><p>Building a premium personal brand is not about being perfect. It's about showing up intentionally. Consistently. With a clear point of view and a genuine desire to help the people you serve. The creators who win are the most consistent. You have everything you need. Now go build it.</p></div>
   <div class="ups">
     <h2>Ready to install your brand in 30 days?</h2>
     <p>The Brand Launch Sprint™ is a focused 30-day execution environment where you install your complete premium personal brand — positioning, aesthetic, visual identity, and content system — with direct creative direction from Gabe. Weekly live sessions. Direct feedback on every step. A community of creators doing the work alongside you.</p>
@@ -539,7 +778,7 @@ function buildPlaybook(){
   items.forEach(function(item){
     if(item.v)html+='<div class="sum"><div class="slb">'+item.l+'</div><div class="svl">'+item.v+'</div></div>';
   });
-  if(!html)html='<p style="color:var(--color-text-secondary);font-size:13px;padding:1rem 0">Complete the exercises in Parts 1–5 to see your personalized playbook here.</p>';
+  if(!html)html='<p style="color:var(--dimmer);font-size:13px;padding:1rem 0">Complete the exercises in Parts 1–5 to see your personalized playbook here.</p>';
   document.getElementById('pbContent').innerHTML=html;
 }
 
@@ -547,3 +786,5 @@ initOpts();
 wire();
 render();
 </script>
+</body>
+</html>
