@@ -823,11 +823,9 @@ function buildPlaybook(){
 
 // ─── THEME ───
 (function(){
-  if(localStorage.getItem('wb-theme')==='light')document.body.classList.add('light');
   var btn=document.getElementById('themeBtn');
   if(btn)btn.addEventListener('click',function(){
     document.body.classList.toggle('light');
-    localStorage.setItem('wb-theme',document.body.classList.contains('light')?'light':'dark');
   });
 })();
 
