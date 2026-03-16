@@ -848,7 +848,7 @@ function go(n){
   window.scrollTo(0,0);
 }
 
-function finish(from,to){done.add(from);go(to);}
+function finish(from,to){done.add(from);saveData();go(to);}
 
 function render(){
   var pct=Math.round((done.size/9)*100);
@@ -923,7 +923,7 @@ var SAVE_KEY='ccb-v1';
 var saveTimer;
 
 function saveData(){
-  var data={inputs:{},opts:{},done:Array.from(done)};
+  var data={inputs:{},opts:{},done:Array.from(done),cur:cur};
   document.querySelectorAll('textarea,input[type=text]').forEach(function(el){
     if(el.id)data.inputs[el.id]=el.value;
   });
@@ -945,6 +945,7 @@ function loadData(){
     if(data.inputs){Object.keys(data.inputs).forEach(function(id){var el=document.getElementById(id);if(el&&data.inputs[id])el.value=data.inputs[id];});}
     if(data.opts){Object.keys(data.opts).forEach(function(g){var val=data.opts[g];document.querySelectorAll('.opt[data-g="'+g+'"]').forEach(function(el){if(el.textContent.trim()===val)el.classList.add('sel');});});}
     if(data.done&&Array.isArray(data.done)){data.done.forEach(function(i){done.add(Number(i));});}
+    if(typeof data.cur==='number')cur=data.cur;
   }catch(e){}
 }
 
@@ -1125,7 +1126,7 @@ function buildPlaybook(){
 initOpts();
 wire();
 loadData();
-render();
+go(cur);
 wireSave();
 </script>
 </body>
