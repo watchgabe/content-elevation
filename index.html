@@ -434,7 +434,26 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
 }
 
 /* ─── PRINT ─── */
-@media print{body::before{display:none}.tabs,.nr,.ups{display:none!important}.sc{display:block!important}#wb{max-width:100%;padding:0}}
+@media print{
+  body::before,#sidebar,.topbar,.tabs,.nr,.ups,.theme-btn{display:none!important}
+  #layout{display:block!important}
+  #main{margin-left:0!important;display:block!important}
+  #wb{max-width:100%!important;padding:1rem!important}
+  /* Full workbook print */
+  body.print-full .sc{display:block!important}
+  /* Blueprint print — answers only */
+  body.print-blueprint #s9{display:block!important}
+  body.print-blueprint #s9>.pl,
+  body.print-blueprint #s9>h1,
+  body.print-blueprint #s9>p,
+  body.print-blueprint #s9>#pbScore,
+  body.print-blueprint #s9>#pbSugg,
+  body.print-blueprint #s9>#pbContent{display:block!important}
+  body.print-blueprint #s9>h2,
+  body.print-blueprint #s9>.div,
+  body.print-blueprint #s9>.wc,
+  body.print-blueprint #s9>.ins{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -486,6 +505,11 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
   <div class="ins"><p>The creators who win aren't the most talented. They're the most consistent. They understand three things: how to look premium, how to build trust, and how to get customers. This workbook covers all three.</p></div>
   <div class="teach"><p>Most content fails before anyone watches it — not because the information is bad, but because it doesn't feel premium enough to stop the scroll, doesn't build enough trust to create belief, and doesn't have a clear enough system to sustain itself. We're living in the most saturated content environment in history. The creators who win aren't the most talented or the most knowledgeable. They're the ones who understand how all three pillars work together to create content that doesn't just get views — it gets customers. This workbook is designed to be worked through, not just read. Each section has a framework, an exercise, and a clear deliverable.</p></div>
   <div class="nr" style="justify-content:flex-end;border-top:none;padding-top:0"><button class="btn p" id="b0n">Begin Part 1 — Foundation →</button></div>
+  <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--dimmer);flex-shrink:0"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    <span style="font-size:12.5px;color:var(--dim)">Prefer pen &amp; paper? Print the full workbook and complete it by hand.</span>
+    <button id="printFullBtn" class="btn" style="margin-left:auto;font-size:11.5px">Print Full Workbook</button>
+  </div>
 </div>
 
 <div class="sc" id="s1">
@@ -816,7 +840,7 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
     <p>The Brand Launch Sprint™ is a focused 30-day execution environment where you install your complete premium personal brand — positioning, aesthetic, visual identity, and content system — with direct creative direction from Gabe. Weekly live sessions. Direct feedback on every step. A community of creators doing the work alongside you.</p>
     <button class="btn p" id="upsBtn">Join the Brand Launch Sprint™ at fscreative.live →</button>
   </div>
-  <div class="nr"><button class="btn" id="b9b">← Back</button><button class="btn" id="printBtn">Print / Save as PDF</button></div>
+  <div class="nr"><button class="btn" id="b9b">← Back</button><button class="btn p" id="printBtn">Download Your Blueprint →</button></div>
 </div>
 
 </div></div></div>
@@ -887,6 +911,18 @@ function initOpts(){
   });
 }
 
+function printFull(){
+  document.body.classList.add('print-full');
+  window.print();
+  setTimeout(function(){document.body.classList.remove('print-full');},500);
+}
+
+function printBlueprint(){
+  document.body.classList.add('print-blueprint');
+  window.print();
+  setTimeout(function(){document.body.classList.remove('print-blueprint');},500);
+}
+
 function wire(){
   var map=[
     ['b0n',null,0,1],
@@ -912,7 +948,9 @@ function wire(){
   var up=document.getElementById('upsBtn');
   if(up)up.addEventListener('click',function(){window.open('https://fscreative.live','_blank');});
   var pr=document.getElementById('printBtn');
-  if(pr)pr.addEventListener('click',function(){window.print();});
+  if(pr)pr.addEventListener('click',printBlueprint);
+  var pf=document.getElementById('printFullBtn');
+  if(pf)pf.addEventListener('click',printFull);
 }
 
 function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
