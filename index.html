@@ -389,6 +389,40 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
 /* ─── DIVIDER ─── */
 .div{height:1px;background:var(--border);margin:1.5rem 0}
 
+/* ─── SAVE INDICATOR ─── */
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--dimmer);flex-shrink:0;transition:background .3s}
+.save-dot.saved{background:var(--green-text)}
+
+/* ─── SCORE CARD ─── */
+.sc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.4rem;margin-bottom:1.5rem}
+.sc-hd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--dimmer);margin-bottom:1rem}
+.sc-main{display:flex;align-items:flex-end;gap:12px;margin-bottom:1.25rem}
+.sc-num{font-family:var(--font-num);font-size:64px;font-weight:900;line-height:1;color:var(--text);letter-spacing:-2px}
+.sc-denom{font-size:14px;color:var(--dimmer);margin-bottom:10px}
+.sc-tier{font-size:13px;font-weight:600;margin-bottom:2px}
+.sc-tier.t0{color:var(--dimmer)}
+.sc-tier.t1{color:var(--orange-dark)}
+.sc-tier.t2{color:var(--orange)}
+.sc-tier.t3{color:var(--green-text)}
+.sc-cats{display:flex;flex-direction:column;gap:9px}
+.sc-cat{display:flex;align-items:center;gap:10px}
+.sc-cat-lbl{font-size:11px;color:var(--dim);width:88px;flex-shrink:0}
+.sc-bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px}
+.sc-bar-fg{height:100%;border-radius:2px;transition:width .7s;background:var(--orange)}
+.sc-bar-fg.hi{background:var(--green-text)}
+.sc-cat-val{font-size:11px;color:var(--dimmer);width:34px;text-align:right;flex-shrink:0}
+
+/* ─── SUGGESTIONS ─── */
+.sugg-hd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--dimmer);margin-bottom:.75rem}
+.sugg-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--radius-md);padding:1rem;margin-bottom:.6rem}
+.sugg-item.green{border-left-color:var(--green-text)}
+.sugg-item.neutral{border-left-color:var(--border2)}
+.sugg-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange);margin-bottom:5px}
+.sugg-item.green .sugg-tag{color:var(--green-text)}
+.sugg-item.neutral .sugg-tag{color:var(--dimmer)}
+.sugg-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sugg-body{font-size:12.5px;color:var(--dim);line-height:1.7}
+
 /* ─── RESPONSIVE ─── */
 @media(max-width:899px){
   #sidebar{display:none}
@@ -418,6 +452,7 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
       <div class="pb"><div class="pf" style="width:0%"></div></div>
       <div class="pt" style="margin-top:5px;font-size:10px">0/9</div>
     </div>
+    <div class="save-dot" title="Auto-saved"></div>
     <button class="theme-btn" aria-label="Toggle theme">
       <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -766,6 +801,8 @@ textarea::placeholder,input[type=text]::placeholder{color:var(--dimmer)}
   <div class="pl">Part 6 — Your Blueprint</div>
   <h1>Your personalized playbook</h1>
   <p class="intro">You've done the work. Here's everything you built — your complete content strategy, visual identity, and monetization plan in one place. Return to this whenever you need to recalibrate.</p>
+  <div id="pbScore"></div>
+  <div id="pbSugg"></div>
   <div id="pbContent"></div>
   <div class="div"></div>
   <h2>Your 30-day content elevation plan</h2>
@@ -879,9 +916,167 @@ function wire(){
 }
 
 function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
-function gs(g){var e=document.querySelector('.opt.sel[data-g="'+g+'"]');return e?e.textContent:'';}
+function gs(g){var e=document.querySelector('.opt.sel[data-g="'+g+'"]');return e?e.textContent.trim():'';}
+
+// ─── AUTO-SAVE ───
+var SAVE_KEY='ccb-v1';
+var saveTimer;
+
+function saveData(){
+  var data={inputs:{},opts:{},done:Array.from(done)};
+  document.querySelectorAll('textarea,input[type=text]').forEach(function(el){
+    if(el.id)data.inputs[el.id]=el.value;
+  });
+  document.querySelectorAll('.opt.sel[data-g]').forEach(function(el){
+    data.opts[el.getAttribute('data-g')]=el.textContent.trim();
+  });
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+    var dot=document.querySelector('.save-dot');
+    if(dot){dot.classList.add('saved');clearTimeout(saveTimer);saveTimer=setTimeout(function(){dot.classList.remove('saved');},2000);}
+  }catch(e){}
+}
+
+function loadData(){
+  var raw=localStorage.getItem(SAVE_KEY);
+  if(!raw)return;
+  try{
+    var data=JSON.parse(raw);
+    if(data.inputs){Object.keys(data.inputs).forEach(function(id){var el=document.getElementById(id);if(el&&data.inputs[id])el.value=data.inputs[id];});}
+    if(data.opts){Object.keys(data.opts).forEach(function(g){var val=data.opts[g];document.querySelectorAll('.opt[data-g="'+g+'"]').forEach(function(el){if(el.textContent.trim()===val)el.classList.add('sel');});});}
+    if(data.done&&Array.isArray(data.done)){data.done.forEach(function(i){done.add(Number(i));});}
+  }catch(e){}
+}
+
+function wireSave(){
+  document.querySelectorAll('textarea,input[type=text]').forEach(function(el){el.addEventListener('input',saveData);});
+  document.querySelectorAll('.opt[data-g]').forEach(function(btn){btn.addEventListener('click',saveData);});
+}
+
+// ─── SCORE ───
+function calcScore(){
+  var s={foundation:0,visual:0,content:0,system:0};
+  // Foundation (max 25)
+  if(gs('goal'))s.foundation+=3;
+  var vl=gv('viewer').length;s.foundation+=vl>20?5:vl>5?2:0;
+  if(gv('nextStep').length>5)s.foundation+=3;
+  if(gs('medium'))s.foundation+=3;
+  if(gv('primary'))s.foundation+=2;
+  if(gv('sauron'))s.foundation+=2;
+  if(gv('cadence').length>5)s.foundation+=4;
+  if(gv('weekHours'))s.foundation+=3;
+  // Visual (max 25)
+  if(gs('env'))s.visual+=3;
+  if(gs('light'))s.visual+=3;
+  if(gs('grade'))s.visual+=3;
+  var vn=gv('vnarr').length;s.visual+=vn>30?6:vn>5?3:0;
+  if(gv('col1')&&gv('col2'))s.visual+=3;
+  if(gv('s1set').length>10)s.visual+=2;
+  if(gv('broll').length>5)s.visual+=3;
+  if(gs('angle'))s.visual+=2;
+  // Content (max 25)
+  if(gv('h1a')&&gv('h1b')&&gv('h1c'))s.content+=4;
+  if(gv('h2a')&&gv('h2b')&&gv('h2c'))s.content+=3;
+  if(gv('h3a')&&gv('h3b')&&gv('h3c'))s.content+=3;
+  var sf=gv('sfideas').split('\n').filter(function(l){return l.trim();}).length;
+  s.content+=sf>=5?5:sf>=3?3:sf>=1?1:0;
+  if(gv('lf1'))s.content+=2;if(gv('lf2'))s.content+=2;if(gv('lf3'))s.content+=2;
+  if(gs('sf'))s.content+=2;if(gs('lib')&&gv('wplib').length>10)s.content+=2;
+  // System (max 25)
+  if(gv('fday')&&gv('eday')&&gv('pday'))s.system+=4;
+  if(gv('maker')&&gv('manager'))s.system+=3;
+  if(gv('olead'))s.system+=3;if(gv('olow'))s.system+=3;
+  if(gv('omid')||gv('ohigh'))s.system+=3;
+  if(gv('ctastrat').length>20)s.system+=4;
+  if(gv('auth')&&gv('rel'))s.system+=3;
+  if(gv('waterfall').length>10)s.system+=2;
+  s.foundation=Math.min(s.foundation,25);s.visual=Math.min(s.visual,25);
+  s.content=Math.min(s.content,25);s.system=Math.min(s.system,25);
+  s.total=s.foundation+s.visual+s.content+s.system;
+  return s;
+}
+
+function tierLabel(n){
+  if(n<30)return['t0','Just Getting Started'];
+  if(n<55)return['t1','Building Momentum'];
+  if(n<75)return['t2','Strong Foundation'];
+  if(n<90)return['t3','Advanced Creator'];
+  return['t3','Blueprint Complete'];
+}
+
+function buildScoreCard(sc){
+  var tier=tierLabel(sc.total);
+  var cats=[{l:'Foundation',v:sc.foundation},{l:'Visual',v:sc.visual},{l:'Content',v:sc.content},{l:'System',v:sc.system}];
+  var catsHtml=cats.map(function(c){
+    var pct=Math.round((c.v/25)*100);
+    return '<div class="sc-cat"><div class="sc-cat-lbl">'+c.l+'</div><div class="sc-bar-bg"><div class="sc-bar-fg'+(c.v>=22?' hi':'')+'" style="width:'+pct+'%"></div></div><div class="sc-cat-val">'+c.v+'/25</div></div>';
+  }).join('');
+  return '<div class="sc-card"><div class="sc-hd">Your Blueprint Score</div><div class="sc-main"><div class="sc-num">'+sc.total+'</div><div class="sc-denom">/100</div><div style="padding-bottom:10px"><div class="sc-tier '+tier[0]+'">'+tier[1]+'</div></div></div><div class="sc-cats">'+catsHtml+'</div></div>';
+}
+
+// ─── SUGGESTIONS ───
+function buildSuggestions(sc){
+  var items=[];
+  var medium=gs('medium');var goal=gs('goal');var platform=gv('primary').toLowerCase();
+
+  // Platform recommendation
+  if(medium.indexOf('Video')>-1||platform.indexOf('youtube')>-1){
+    items.push({type:'orange',tag:'Platform Strategy',title:'YouTube → Instagram Reels → TikTok',body:'Video is your highest-leverage medium. YouTube compounds long-term — a video posted today will still drive traffic in 3 years. Repurpose to Reels for reach and TikTok for discovery. Always drive traffic back to YouTube for the trust-building long-form content.'});
+  }else if(medium.indexOf('Audio')>-1){
+    items.push({type:'orange',tag:'Platform Strategy',title:'Podcast → LinkedIn → YouTube clips',body:'Audio creates the deepest intimacy with an audience. Distribute on Spotify and Apple Podcasts. Clip 60-second moments for LinkedIn and Instagram. Transcribe episodes into written posts. One recording session = 5+ pieces of platform-native content.'});
+  }else if(medium.indexOf('Written')>-1){
+    items.push({type:'orange',tag:'Platform Strategy',title:'LinkedIn → Newsletter → Twitter/X',body:'Written content builds the highest authority per word. LinkedIn still has organic reach most platforms abandoned. Capture every reader into a newsletter — you own that audience. Twitter/X threads for reach and discoverability.'});
+  }else if(medium.indexOf('Visual')>-1||medium.indexOf('carousel')>-1){
+    items.push({type:'orange',tag:'Platform Strategy',title:'Instagram Carousels → Pinterest → LinkedIn',body:'Visual/carousel content has the highest save rate of any format. Saves signal long-term value to the algorithm. Pinterest compounds for months. Cross-post carousels to LinkedIn — they outperform most creators expect.'});
+  }else{
+    items.push({type:'neutral',tag:'Platform Strategy',title:'Define your primary medium first',body:'Your platform strategy starts with medium. The right platform depends on where your ideal viewer spends time AND what format feels most natural to you. Come back and define this — it changes everything downstream.'});
+  }
+
+  // Goal-based
+  if(goal.indexOf('leads')>-1||goal.indexOf('Generate')>-1){
+    items.push({type:'orange',tag:'Lead Generation',title:'Every piece needs one clear next step',body:'Your goal is lead generation — every piece of content needs a CTA that captures an email. A lead magnet solving a specific micro-problem converts 3–5x better than a generic "free guide." If your lead magnet isn\'t defined yet, that\'s your highest priority.'});
+  }else if(goal.indexOf('Convert')>-1||goal.indexOf('customer')>-1){
+    items.push({type:'orange',tag:'Conversion Strategy',title:'Trust content before conversion content',body:'Conversion requires trust first. Pushing conversion content before building enough trust trains your audience to ignore your CTAs. The ratio: 3–4 trust-building pieces for every 1 conversion piece.'});
+  }else if(goal.indexOf('awareness')>-1||goal.indexOf('brand')>-1){
+    items.push({type:'orange',tag:'Brand Awareness',title:'Consistency beats virality every time',body:'Brand awareness is a long game. The creators who appear to "blow up" are usually 2–3 years into consistent posting — you just found them when they popped. A repeatable cadence and recognizable visual world compounds with time.'});
+  }
+
+  // Strengths
+  if(sc.visual>=18){
+    items.push({type:'green',tag:'Strength — Visual Identity',title:'Your visual world is well-defined',body:'This is a significant competitive advantage — most creators never get here. Make sure your visual world narrative and shot system are documented somewhere an editor or collaborator can reference.'});
+  }else if(sc.visual<10&&sc.total>15){
+    items.push({type:'orange',tag:'Gap — Visual Identity',title:'Your visual world needs definition',body:'Visual identity is judged before a single word is heard. If this score is low, defining your visual world narrative and shot system is your highest-priority next step. It changes how your content is perceived immediately.'});
+  }
+
+  if(sc.content>=18){
+    items.push({type:'green',tag:'Strength — Content System',title:'Strong hooks, stories, and content plan',body:'You have enough to start creating immediately. The key now is execution — ship the first 5 pieces using your new standards before optimizing further. Ship, review, adjust.'});
+  }
+
+  if(sc.system<10&&sc.total>15){
+    items.push({type:'orange',tag:'Gap — Monetization',title:'Your offer stack isn\'t defined yet',body:'Content without a monetization path is a hobby, not a business. You don\'t need to sell immediately — but you need to know where you\'re taking people. Define your offer stack before your next piece of content.'});
+  }
+
+  if(!gv('h1a')||!gv('h1b')||!gv('h1c')){
+    items.push({type:'neutral',tag:'Quick Win',title:'Write your hook library before your next video',body:'The hook is the highest-leverage minute of any piece of content. Creators who write 3 hook options per video and test them see 2–4x higher retention. Fill in the hook library and use it on your very next piece.'});
+  }
+
+  return items;
+}
 
 function buildPlaybook(){
+  var sc=calcScore();
+  document.getElementById('pbScore').innerHTML=buildScoreCard(sc);
+
+  var suggs=buildSuggestions(sc);
+  var suggHtml='';
+  if(suggs.length){
+    suggHtml='<div class="sugg-hd" style="margin-top:1.5rem">Personalized Recommendations</div>';
+    suggs.forEach(function(s){
+      suggHtml+='<div class="sugg-item '+s.type+'"><div class="sugg-tag">'+s.tag+'</div><div class="sugg-title">'+s.title+'</div><div class="sugg-body">'+s.body+'</div></div>';
+    });
+  }
+  document.getElementById('pbSugg').innerHTML=suggHtml;
+
   var items=[
     {l:'Content goal',v:gs('goal')},{l:'Ideal viewer',v:gv('viewer')},
     {l:'Desired next step',v:gv('nextStep')},{l:'Painful problem',v:gv('painProblem')},
@@ -914,25 +1109,24 @@ function buildPlaybook(){
     {l:'Conversion mechanism',v:gv('conv')},{l:'CTA strategy',v:gv('ctastrat')}
   ];
   var html='';
-  items.forEach(function(item){
-    if(item.v)html+='<div class="sum"><div class="slb">'+item.l+'</div><div class="svl">'+item.v+'</div></div>';
-  });
-  if(!html)html='<p style="color:var(--dimmer);font-size:13px;padding:1rem 0">Complete the exercises in Parts 1–5 to see your personalized playbook here.</p>';
+  items.forEach(function(item){if(item.v)html+='<div class="sum"><div class="slb">'+item.l+'</div><div class="svl">'+item.v+'</div></div>';});
+  if(html)html='<div class="div"></div><h2 style="margin-top:0">Your Answers</h2>'+html;
+  else html='<p style="color:var(--dimmer);font-size:13px;padding:.5rem 0">Complete the exercises in Parts 1–5 to populate your playbook here.</p>';
   document.getElementById('pbContent').innerHTML=html;
 }
 
 // ─── THEME ───
 (function(){
   document.querySelectorAll('.theme-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      document.body.classList.toggle('light');
-    });
+    btn.addEventListener('click',function(){document.body.classList.toggle('light');});
   });
 })();
 
 initOpts();
 wire();
+loadData();
 render();
+wireSave();
 </script>
 </body>
 </html>
